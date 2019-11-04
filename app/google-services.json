@@ -1,0 +1,85 @@
+{
+  "project_info": {
+    "project_number": "423774539935",
+    "firebase_url": "https://hairsalonbooking-91484.firebaseio.com",
+    "project_id": "hairsalonbooking-91484",
+    "storage_bucket": "hairsalonbooking-91484.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423774539935:android:a9a0fff67611fe560192aa",
+        "android_client_info": {
+          "package_name": "com.example.hairsalonbooking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "423774539935-68qavikds6rlq8qqtohg3qnivnku9n2p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hairsalonbooking",
+            "certificate_hash": "2b5bdf6d1c6ec4d36fb286a2a14295f87002c7a3"
+          }
+        },
+        {
+          "client_id": "423774539935-bmg5kq3326ltgssaifhts8pfl7dt8n88.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbQYe4UNY65c2-93v42RBJSa00RG2CphI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "423774539935-bmg5kq3326ltgssaifhts8pfl7dt8n88.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423774539935:android:0e18bde14bddc50d0192aa",
+        "android_client_info": {
+          "package_name": "com.example.hairsalonbookingstaff"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "423774539935-kk5egrgo7ra6a73nn70v9fgk7tii664g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hairsalonbookingstaff",
+            "certificate_hash": "2b5bdf6d1c6ec4d36fb286a2a14295f87002c7a3"
+          }
+        },
+        {
+          "client_id": "423774539935-bmg5kq3326ltgssaifhts8pfl7dt8n88.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbQYe4UNY65c2-93v42RBJSa00RG2CphI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "423774539935-bmg5kq3326ltgssaifhts8pfl7dt8n88.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
