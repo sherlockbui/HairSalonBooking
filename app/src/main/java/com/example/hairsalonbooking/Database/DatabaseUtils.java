@@ -9,10 +9,7 @@ import com.example.hairsalonbooking.Interface.ICountItemCartListener;
 import com.example.hairsalonbooking.Interface.ISumCartListener;
 
 import java.util.List;
-
 public class DatabaseUtils {
-
-
     public static void sumCart(CartDatabase db, ISumCartListener iSumCartListener){
         SumCartAsync task = new SumCartAsync(db, iSumCartListener);
         task.execute();

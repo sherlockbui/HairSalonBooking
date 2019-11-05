@@ -67,7 +67,7 @@ public class Common {
             case 18:
                 return "18:00 - 18:30";
             case 19:
-                return "18:30 - 19:30";
+                return "18:30 - 19:00";
             default:
                 return "Closed";
         }

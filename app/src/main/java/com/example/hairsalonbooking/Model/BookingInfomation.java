@@ -3,20 +3,9 @@ package com.example.hairsalonbooking.Model;
 
 public class BookingInfomation {
     private String customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress,slot;
+    private boolean done;
 
     public BookingInfomation() {
-    }
-
-    public BookingInfomation(String customerName, String customerPhone, String time, String barberId, String barberName, String salonId, String salonName, String salonAddress, String slot) {
-        this.customerName = customerName;
-        this.customerPhone = customerPhone;
-        this.time = time;
-        this.barberId = barberId;
-        this.barberName = barberName;
-        this.salonId = salonId;
-        this.salonName = salonName;
-        this.salonAddress = salonAddress;
-        this.slot = slot;
     }
 
     @Override
@@ -32,6 +21,14 @@ public class BookingInfomation {
                 ", salonAddress='" + salonAddress + '\'' +
                 ", slot='" + slot + '\'' +
                 '}';
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     public String getCustomerName() {

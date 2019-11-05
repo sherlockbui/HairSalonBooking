@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +23,13 @@ import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.Model.MyNotification;
 import com.example.hairsalonbooking.R;
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.UUID;
 
 public class BookingStep4Fragment extends Fragment {
 
@@ -104,7 +99,7 @@ public class BookingStep4Fragment extends Fragment {
                 final String barberId = Common.currentBarber.getId();
                 String barberName = Common.currentBarber.getName();
                 String customerName = Common.currentUser.getFullName();
-                String customerPhone = Common.currentUser.getPhoneNumber();
+                String customerPhone = Common.currentUser.getPhoneNumber().trim();
                 String salonId = Common.currentSalon.getSalonId();
                 String salonAddress = Common.currentSalon.getAdress();
                 String salonName = Common.currentSalon.getName();
@@ -118,6 +113,7 @@ public class BookingStep4Fragment extends Fragment {
                 bookingInfomation.setSalonId(salonId);
                 bookingInfomation.setSalonAddress(salonAddress);
                 bookingInfomation.setSalonName(salonName);
+                bookingInfomation.setDone(false);
                 bookingInfomation.setTime(new StringBuilder(slot)
                         .append(" at ")
                         .append(simpleDateFormat.format(Common.bookingDate.getTime())).toString());
@@ -128,7 +124,7 @@ public class BookingStep4Fragment extends Fragment {
                 myNotification.setContent("You have a new appoiment from phone "+ Common.currentUser.getPhoneNumber());
                 myNotification.setRead(false);
                 String notification = new Gson().toJson(myNotification);
-                mSocket.emit("addBooking",barberId,barberName,customerName,customerPhone,salonId,salonAddress, salonName,slot,date,notification);
+                mSocket.emit("addBooking", barberId, barberName, customerName, customerPhone, salonId, salonAddress, salonName, slot, false, date, notification);
                 mSocket.on("addBooking", new Emitter.Listener() {
                     @Override
                     public void call(final Object... args) {
