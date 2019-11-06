@@ -1,10 +1,16 @@
 package com.example.hairsalonbooking.Fragments;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +34,11 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class BookingStep4Fragment extends Fragment {
 
@@ -104,7 +113,7 @@ public class BookingStep4Fragment extends Fragment {
                 String salonAddress = Common.currentSalon.getAdress();
                 String salonName = Common.currentSalon.getName();
                 final String date = simpleDateFormat.format(Common.bookingDate.getTime());
-                String slot = String.valueOf(Common.currentTimeSlot);
+                final String slot = String.valueOf(Common.currentTimeSlot);
 
                 bookingInfomation.setBarberId(barberId);
                 bookingInfomation.setBarberName(barberName);
@@ -133,8 +142,13 @@ public class BookingStep4Fragment extends Fragment {
                             @Override
                             public void run() {
                                 if(object!=null){
+                                    Common.bookingInfomation = bookingInfomation;
+//                                    addToCalendar(Common.bookingDate,Common.convertTimeSlotToString(Common.currentTimeSlot));
                                     resetData();// fix bug to continue booking (reset Common.step)
                                     Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+                                    getActivity().finish();
+                                } else {
+                                    Toast.makeText(getContext(), "Sorry, 1 phonenumber/1 slot per day", Toast.LENGTH_SHORT).show();
                                     getActivity().finish();
                                 }
                             }
@@ -144,6 +158,107 @@ public class BookingStep4Fragment extends Fragment {
             }
         });
     }
+
+    private void addToCalendar(Calendar bookingDate, String startDate) {
+        String[] convertTime = startDate.split("-"); //split 9:00 - 9:30 to 2 object timestart, timeend
+        String[] startTimeCovert = convertTime[0].split(":");
+        int startHourInt = Integer.parseInt(startTimeCovert[0].trim());
+        int startMinInt = Integer.parseInt(startTimeCovert[1].trim());
+
+        String[] endTimeCovert = convertTime[1].split(":");
+        int endHourInt = Integer.parseInt(endTimeCovert[0].trim());
+        int endMinInt = Integer.parseInt(endTimeCovert[1].trim());
+
+        //Start event Calendar
+        Calendar startEvent = Calendar.getInstance();
+        startEvent.setTimeInMillis(bookingDate.getTimeInMillis());
+        startEvent.set(Calendar.HOUR_OF_DAY, startHourInt);
+        startEvent.set(Calendar.MINUTE, startMinInt);
+        //End event Calendar
+        Calendar endEvent = Calendar.getInstance();
+        endEvent.setTimeInMillis(bookingDate.getTimeInMillis());
+        endEvent.set(Calendar.HOUR_OF_DAY, endHourInt);
+        endEvent.set(Calendar.MINUTE, endMinInt);
+
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        String startEventTime = calendarDateFormat.format(startEvent.getTime());
+        String endEventTime = calendarDateFormat.format(endEvent.getTime());
+
+        addToDeviceCalendar(startEventTime, endEventTime, "Haircut Booking",
+                new StringBuilder("Haircut from ")
+                        .append(startDate)
+                        .append(" with ")
+                        .append(Common.currentBarber.getName())
+                        .append(" at ")
+                        .append(Common.currentSalon.getName()).toString(), new StringBuilder("Address: ").append(Common.currentSalon.getAdress()).toString());
+
+    }
+
+    private void addToDeviceCalendar(String startEventTime, String endEventTime, String title, String description, String location) {
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+
+        try {
+            Date start = calendarDateFormat.parse(startEventTime);
+            Date end = calendarDateFormat.parse(endEventTime);
+            ContentValues event = new ContentValues();
+
+            //Put
+            event.put(CalendarContract.Events.CALENDAR_ID, getCalendar(getContext()));
+            event.put(CalendarContract.Events.TITLE, title);
+            event.put(CalendarContract.Events.DESCRIPTION, description);
+            event.put(CalendarContract.Events.EVENT_LOCATION, location);
+
+            //Time
+            event.put(CalendarContract.Events.DTSTART, start.getTime());
+            event.put(CalendarContract.Events.DTEND, end.getTime());
+            event.put(CalendarContract.Events.ALL_DAY, 0);
+            event.put(CalendarContract.Events.HAS_ALARM, 1);
+
+            String timeZone = TimeZone.getDefault().getID();
+            event.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone);
+
+            Uri calendars;
+            if (Build.VERSION.SDK_INT >= 8) {
+                calendars = Uri.parse("content://com.android.calendar/calendars");
+            } else {
+                calendars = Uri.parse("content://calendar/events");
+            }
+            getActivity().getContentResolver().insert(calendars, event);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getCalendar(Context context) {
+        String gmailIdCalendar = "";
+        String[] projection = {"_id", "calendar_displayName"};
+
+        Uri calendars;
+        if (Build.VERSION.SDK_INT >= 8) {
+            calendars = Uri.parse("content://com.android.calendar/calendars");
+        } else {
+            calendars = Uri.parse("content://calendar/events");
+        }
+        ContentResolver contentResolver = context.getContentResolver();
+        //Select all calendar
+        Cursor managedCursor = contentResolver.query(calendars, projection, null, null, null);
+        if (managedCursor.moveToFirst()) {
+            String calName;
+            int nameCol = managedCursor.getColumnIndex(projection[1]);
+            int idCol = managedCursor.getColumnIndex(projection[0]);
+            do {
+                calName = managedCursor.getString(nameCol);
+                if (calName.contains("@gmail.com")) {
+                    gmailIdCalendar = managedCursor.getString(idCol);
+                    break;
+                }
+            } while (managedCursor.moveToNext());
+            managedCursor.close();
+        }
+
+        return gmailIdCalendar;
+    }
+
 
     private void resetData() {
         Common.step = 0;

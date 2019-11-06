@@ -1,6 +1,7 @@
 package com.example.hairsalonbooking.Common;
 
 import com.example.hairsalonbooking.Model.Barber;
+import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.Model.Salon;
 import com.example.hairsalonbooking.Model.User;
 
@@ -25,6 +26,7 @@ public class Common {
     public static Barber currentBarber;
     public static int currentTimeSlot = -1;
     public static Calendar bookingDate = Calendar.getInstance();
+    public static BookingInfomation bookingInfomation;
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot) {

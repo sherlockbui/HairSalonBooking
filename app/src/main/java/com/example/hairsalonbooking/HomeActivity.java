@@ -22,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -102,7 +103,7 @@ public class HomeActivity extends AppCompatActivity {
                                                 object.getString("phone"),
                                                 object.getString("adress"));
                                         Common.currentUser = user;
-//                                bottomNavigationView.setSelectedItemId(R.id.action_home);
+                                        bottomNavigationView.setSelectedItemId(R.id.action_home);
                                         Log.d("AAA", "call: " + user);
                                     } catch (JSONException e) {
                                         e.printStackTrace();

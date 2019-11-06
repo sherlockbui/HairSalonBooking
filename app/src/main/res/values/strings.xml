@@ -99,5 +99,9 @@
 
     <string name="custom_auth_signin_status_user">User ID: %s</string>
     <string name="custom_auth_signin_status_failed">Error: sign in failed</string>
+    <string name="address_bullet">\u2022 Address: </string>
+    <string name="time_bullet">\u2022 Time: </string>
+    <string name="stylelist_bullet">\u2022 StyleList:</string>
+    <string name="bullet">\u2022</string>
 
 </resources>

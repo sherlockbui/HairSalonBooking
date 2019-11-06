@@ -1,5 +1,6 @@
 package com.example.hairsalonbooking;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,6 +14,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +30,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        createSignInIntent();
+        Dexter.withActivity(this).withPermissions(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR).withListener(new MultiplePermissionsListener() {
+            @Override
+            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                createSignInIntent();
+            }
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                finish();
+            }
+        }).check();
+
     }
 
     public void createSignInIntent() {

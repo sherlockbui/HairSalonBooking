@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,16 +35,14 @@ import com.example.hairsalonbooking.Model.User;
 import com.example.hairsalonbooking.R;
 import com.example.hairsalonbooking.Service.PicassoService;
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.firebase.auth.FirebaseAuth;
 import com.nex3z.notificationbadge.NotificationBadge;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import ss.com.bannerslider.Slider;
@@ -53,15 +52,14 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     LinearLayout layout_user_infomation;
     Slider banner_slider;
     RecyclerView recycler_look_book;
-    TextView txt_user_name;
+    TextView txt_user_name, txt_salon_address, txt_salon_barber, txt_time, txt_time_remain;
     IBannerLoadListener iBannerLoadListener;
     ILookBookLoadListener iLookBookLoadListener;
     List<Banner> banners;
     List<Banner> bannerslookbook;
-    CardView card_view_booking, card_view_cart;
+    CardView card_view_booking, card_view_cart, card_booking_info;
     NotificationBadge notificationBadge;
     CartDatabase cartDatabase;
-    private FirebaseAuth mAuth;
     private Socket mSocket= MySocket.getmSocket();
     private Emitter.Listener getBanners = new Emitter.Listener() {
 
@@ -123,7 +121,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         User currentUser = Common.currentUser;
         if (currentUser != null) {
             setUserInfomation();
-//            countCartItem();
+            countCartItem();
 
         }
 
@@ -162,7 +160,8 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     }
 
     private void initView(View view) {
-//        cartDatabase = CartDatabase.getInstance(getContext());
+
+        cartDatabase = CartDatabase.getInstance(getContext());
         banners = new ArrayList<>();
         bannerslookbook = new ArrayList<>();
         layout_user_infomation = view.findViewById(R.id.layout_user_infomation);
@@ -173,8 +172,13 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         card_view_cart = view.findViewById(R.id.card_view_cart);
         Slider.init(new PicassoService());
         notificationBadge = view.findViewById(R.id.notification_badge);
-
-
+        // Init Infomation Booking layout
+        card_booking_info = view.findViewById(R.id.card_booking_info);
+        txt_salon_address = view.findViewById(R.id.txt_salon_address);
+        txt_salon_barber = view.findViewById(R.id.txt_salon_baber);
+        txt_time = view.findViewById(R.id.txt_time);
+        txt_time_remain = view.findViewById(R.id.txt_time_remain);
+        loadUserBooking();
     }
 
     private void setUserInfomation() {
@@ -218,6 +222,19 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     @Override
     public void onResume() {
 //        countCartItem();
+        loadUserBooking();
         super.onResume();
+    }
+
+    private void loadUserBooking() {
+        if (Common.bookingInfomation == null) {
+            card_booking_info.setVisibility(View.GONE);
+        } else {
+            card_booking_info.setVisibility(View.VISIBLE);
+            txt_salon_address.setText(Common.bookingInfomation.getSalonAddress());
+            txt_salon_barber.setText(Common.bookingInfomation.getBarberName());
+            txt_time.setText(Common.bookingInfomation.getTime());
+            Log.d("TEST", "curent: " + Calendar.getInstance().getTimeInMillis());
+        }
     }
 }

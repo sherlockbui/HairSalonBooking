@@ -1,220 +1,349 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:background="@color/homeBackground"
+    android:orientation="vertical"
     tools:context=".Fragments.HomeFragment">
 
     <LinearLayout
         android:id="@+id/layout_user_infomation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorButton"
+        android:orientation="horizontal"
         android:padding="8dp"
         android:visibility="gone"
-        android:background="@color/colorButton"
-        android:weightSum="4"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:weightSum="4">
 
         <ImageView
-            android:src="@drawable/ic_account_circle_white_24dp"
             android:layout_width="60dp"
-            android:layout_height="60dp"/>
+            android:layout_height="60dp"
+            android:src="@drawable/ic_account_circle_white_24dp" />
+
         <LinearLayout
-            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/txt_user_name"
-            android:textSize="16sp"
-            android:text="Bui Manh Hieu"
-            android:textColor="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-        <TextView
-            android:id="@+id/txt_member_type"
-            android:textSize="16sp"
-            android:text="Boss"
-            android:textColor="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txt_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Bui Manh Hieu"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txt_member_type"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Boss"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
         </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
-        android:padding="8dp"
-        android:weightSum="4"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_booking"
-            android:layout_marginRight="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:weightSum="4">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_booking"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_event_available_black_24dp"></ImageView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/bellerose"
+                        android:text="Booking"
+                        android:textSize="@dimen/textCardSize" />
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_cart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="8dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.nex3z.notificationbadge.NotificationBadge
+                        android:id="@+id/notification_badge"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_toRightOf="@+id/txt_card_title"
+                        app:nbMaxTextLength="2" />
+
+                    <ImageView
+                        android:id="@+id/card_icon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_centerHorizontal="true"
+                        android:src="@drawable/ic_add_shopping_cart_black_24dp"></ImageView>
+
+                    <TextView
+                        android:id="@+id/txt_card_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/card_icon"
+                        android:layout_centerHorizontal="true"
+                        android:fontFamily="@font/bellerose"
+                        android:text="Cart"
+                        android:textSize="@dimen/textCardSize" />
+                </RelativeLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_history"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_history_black_24dp"></ImageView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/bellerose"
+                        android:text="History"
+                        android:textSize="@dimen/textCardSize" />
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view_notification"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_notifications_black_24dp"></ImageView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/bellerose"
+                        android:text="Notification"
+                        android:textSize="@dimen/textCardSize" />
+                </LinearLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_booking_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:visibility="gone"
             app:cardCornerRadius="8dp">
+
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-                <ImageView
-                    android:src="@drawable/ic_event_available_black_24dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"></ImageView>
-                <TextView
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Booking"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_event_note_black_24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:fontFamily="@font/bellerose"
+                        android:text="Your Booking Infomation"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/address_bullet" />
+
+                    <TextView
+                        android:id="@+id/txt_salon_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Address Salon"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/time_bullet" />
+
+                    <TextView
+                        android:id="@+id/txt_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stylelist_bullet" />
+
+                    <TextView
+                        android:id="@+id/txt_salon_baber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" Sherlock"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bullet" />
+
+                    <TextView
+                        android:id="@+id/txt_time_remain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" Time"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
-
-
         </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_cart"
-            android:layout_marginRight="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp">
-            <RelativeLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.nex3z.notificationbadge.NotificationBadge
-                    android:id="@+id/notification_badge"
-                    android:layout_toRightOf="@+id/txt_card_title"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    app:nbMaxTextLength="2"/>
-
-                <ImageView
-                    android:id="@+id/card_icon"
-                    android:src="@drawable/ic_add_shopping_cart_black_24dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"></ImageView>
-                <TextView
-                    android:id="@+id/txt_card_title"
-                    android:layout_below="@+id/card_icon"
-                    android:fontFamily="@font/bellerose"
-                    android:layout_centerHorizontal="true"
-                    android:text="Cart"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </RelativeLayout>
-
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_history"
-            android:layout_marginRight="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp">
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:src="@drawable/ic_history_black_24dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"></ImageView>
-                <TextView
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:text="History"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view_notification"
-            android:layout_marginRight="8dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp">
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:src="@drawable/ic_notifications_black_24dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"></ImageView>
-                <TextView
-                    android:fontFamily="@font/bellerose"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Notification"
-                    android:textSize="@dimen/textCardSize"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-
-        </androidx.cardview.widget.CardView>
-
-
     </LinearLayout>
 
     <LinearLayout
-        android:padding="8dp"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp">
+
         <ss.com.bannerslider.Slider
             android:id="@+id/banner_slider"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <RelativeLayout
-            android:padding="2dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="2dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:text="LookBook"
                 android:fontFamily="@font/bellerose"
+                android:text="LookBook"
                 android:textColor="@color/colorButton"
-                android:textSize="18sp"/>
+                android:textSize="18sp" />
 
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_look_book"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal" />
 
     </LinearLayout>
 
