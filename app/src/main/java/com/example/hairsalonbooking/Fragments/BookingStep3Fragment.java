@@ -22,6 +22,7 @@ import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Common.MySocket;
 import com.example.hairsalonbooking.Common.SpaceItemDecoration;
 import com.example.hairsalonbooking.Interface.ITimeSlotLoadListener;
+import com.example.hairsalonbooking.Model.MyToken;
 import com.example.hairsalonbooking.Model.TimeSlot;
 import com.example.hairsalonbooking.R;
 import com.github.nkzawa.emitter.Emitter;
@@ -58,8 +59,26 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
             date.add(Calendar.DATE, 0);
             loadAvailableTimeSlotOfBarber(Common.currentBarber
                     .getId(), simpleDateFormat.format(date.getTime()));
-            Log.d("AAA", "onReceive: " + Common.currentBarber.getId());
-            Log.d("AAA", "onReceive: " + simpleDateFormat.format(date.getTime()));
+            //get token by barber
+            mSocket.emit("getToken", Common.currentBarber.getId()).on("getToken", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    JSONObject object = (JSONObject) args[0];
+                    if (object != null) {
+                        MyToken token = new MyToken();
+                        try {
+                            token.setIdbarber(object.getString("idbarber"));
+                            token.setToken(object.getString("token"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Common.currentToken = token;
+                        Log.d("TOKEN", "call: " + Common.currentToken.getToken());
+                    } else {
+                        Common.currentToken = null;
+                    }
+                }
+            });
 
         }
     };

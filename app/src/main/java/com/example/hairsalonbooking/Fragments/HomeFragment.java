@@ -31,6 +31,7 @@ import com.example.hairsalonbooking.Interface.IBannerLoadListener;
 import com.example.hairsalonbooking.Interface.ICountItemCartListener;
 import com.example.hairsalonbooking.Interface.ILookBookLoadListener;
 import com.example.hairsalonbooking.Model.Banner;
+import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.Model.User;
 import com.example.hairsalonbooking.R;
 import com.example.hairsalonbooking.Service.PicassoService;
@@ -61,6 +62,37 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     NotificationBadge notificationBadge;
     CartDatabase cartDatabase;
     private Socket mSocket= MySocket.getmSocket();
+
+    private Emitter.Listener getBookInfomation = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            JSONObject object = (JSONObject) args[0];
+            if (object != null) {
+                if (Common.bookingInfomation == null) {
+                    Common.bookingInfomation = new BookingInfomation();
+                    try {
+                        Common.bookingInfomation.set_id(object.getString("_id"));
+                        Common.bookingInfomation.setCustomerName(object.getString("customerName"));
+                        Common.bookingInfomation.setCustomerPhone(object.getString("customerPhone"));
+                        Common.bookingInfomation.setDate(object.getString("date"));
+                        Common.bookingInfomation.setBarberId(object.getString("barberId"));
+                        Common.bookingInfomation.setBarberName(object.getString("barberName"));
+                        Common.bookingInfomation.setSalonId(object.getString("salonId"));
+                        Common.bookingInfomation.setSalonName(object.getString("salonName"));
+                        Common.bookingInfomation.setSalonAddress(object.getString("salonAddress"));
+                        Common.bookingInfomation.setSlot(object.getString("slot"));
+                        Common.bookingInfomation.setDone(object.getBoolean("done"));
+                        Common.bookingInfomation.setTime(new StringBuilder(Common.convertTimeSlotToString(Integer.parseInt(object.getString("slot"))))
+                                .append(" at ")
+                                .append(object.getString("date")).toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+    };
     private Emitter.Listener getBanners = new Emitter.Listener() {
 
         @Override
@@ -85,13 +117,25 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     private Emitter.Listener getLookBook = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            JSONObject object = (JSONObject) args[0];
+            final JSONObject object = (JSONObject) args[0];
+            Handler mHandler = new Handler(Looper.getMainLooper());
             try {
-                String image = object.getString("image");
-                bannerslookbook.add(new Banner(image));
+                if (object != null) {
+                    final String image = object.getString("image");
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            bannerslookbook.add(new Banner(image));
+                        }
+                    });
+
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+
+
         }
     };
 
@@ -113,6 +157,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         mSocket.on("getLookBook", getLookBook);
         mSocket.on("getBanners", getBanners);
+        mSocket.on("getBookInfomation", getBookInfomation);
         mSocket.connect();
         mSocket.emit("getBanners", "");
         mSocket.emit("getLookBook", "");
@@ -184,8 +229,6 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     private void setUserInfomation() {
         layout_user_infomation.setVisibility(View.VISIBLE);
         txt_user_name.setText(Common.currentUser.getFullName());
-
-
     }
 
     @Override
@@ -227,6 +270,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     }
 
     private void loadUserBooking() {
+        mSocket.emit("getBookInfomation");
         if (Common.bookingInfomation == null) {
             card_booking_info.setVisibility(View.GONE);
         } else {

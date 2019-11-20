@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "423774539935-jqcu91dcnpjb3fa1hu2g7u0e2uan2svd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hairsalonbooking",
+            "certificate_hash": "afc5bbf5819a50deaf68a616c405890735acf390"
+          }
+        },
+        {
           "client_id": "423774539935-68qavikds6rlq8qqtohg3qnivnku9n2p.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -51,6 +59,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "423774539935-sg9oh115gdnkgap0orlj0p058pv23nnr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hairsalonbookingstaff",
+            "certificate_hash": "afc5bbf5819a50deaf68a616c405890735acf390"
+          }
+        },
         {
           "client_id": "423774539935-kk5egrgo7ra6a73nn70v9fgk7tii664g.apps.googleusercontent.com",
           "client_type": 1,

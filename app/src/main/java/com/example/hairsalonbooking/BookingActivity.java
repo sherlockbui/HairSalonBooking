@@ -19,14 +19,12 @@ import com.example.hairsalonbooking.Common.MySocket;
 import com.example.hairsalonbooking.Common.NonSwipeViewPager;
 import com.example.hairsalonbooking.Model.Barber;
 import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.shuhart.stepview.StepView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +94,7 @@ public class BookingActivity extends AppCompatActivity {
                     }
                     else if(Common.step==2){
                         if(Common.currentBarber != null){
-                            loadTimeSlotOfBarber(Common.currentBarber.getId());
+                            loadTimeSlotOfBarber();
                         }
                     }
                     else if(Common.step==3){
@@ -129,7 +127,7 @@ public class BookingActivity extends AppCompatActivity {
 
     }
 
-    private void loadTimeSlotOfBarber(String barberId) {
+    private void loadTimeSlotOfBarber() {
         Intent intent = new Intent(Common.KEY_DISLAY_TIME_SLOT);
         localBroadcastManager.sendBroadcast(intent);
     }

@@ -2,29 +2,32 @@ package com.example.hairsalonbooking.Model;
 
 
 public class BookingInfomation {
-    private String customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress,slot;
+    private String _id, date, customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress, slot;
     private boolean done;
 
     public BookingInfomation() {
     }
 
-    @Override
-    public String toString() {
-        return "BookingInfomation{" +
-                "customerName='" + customerName + '\'' +
-                ", customerPhone='" + customerPhone + '\'' +
-                ", time='" + time + '\'' +
-                ", barberId='" + barberId + '\'' +
-                ", barberName='" + barberName + '\'' +
-                ", salonId='" + salonId + '\'' +
-                ", salonName='" + salonName + '\'' +
-                ", salonAddress='" + salonAddress + '\'' +
-                ", slot='" + slot + '\'' +
-                '}';
-    }
+
 
     public boolean isDone() {
         return done;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public void setDone(boolean done) {

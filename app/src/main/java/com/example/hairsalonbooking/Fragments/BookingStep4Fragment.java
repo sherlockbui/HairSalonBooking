@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,19 +27,29 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Common.MySocket;
 import com.example.hairsalonbooking.Model.BookingInfomation;
+import com.example.hairsalonbooking.Model.FCMResponse;
+import com.example.hairsalonbooking.Model.FCMSendData;
 import com.example.hairsalonbooking.Model.MyNotification;
 import com.example.hairsalonbooking.R;
+import com.example.hairsalonbooking.Retrofit.IFCMService;
+import com.example.hairsalonbooking.Retrofit.RetrofitClient;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
+
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class BookingStep4Fragment extends Fragment {
 
@@ -48,6 +59,8 @@ public class BookingStep4Fragment extends Fragment {
     LocalBroadcastManager localBroadcastManager;
     TextView txt_booking_barber_text, txt_booking_time_text, txt_salon_address, txt_salon_name, txt_salon_open_hours, txt_salon_phone, txt_salon_website;
     Button btn_confirm;
+    IFCMService ifcmService;
+
 
     BroadcastReceiver confirmBookingReceiver = new BroadcastReceiver() {
         @Override
@@ -77,6 +90,7 @@ public class BookingStep4Fragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSocket.connect();
+        ifcmService = RetrofitClient.getInstance().create(IFCMService.class);
         simpleDateFormat = new SimpleDateFormat("dd_MM_yyyy");
         localBroadcastManager = LocalBroadcastManager.getInstance(getContext());
         localBroadcastManager.registerReceiver(confirmBookingReceiver, new IntentFilter(Common.KEY_CONFIRM_BOOKING));
@@ -106,12 +120,12 @@ public class BookingStep4Fragment extends Fragment {
             public void onClick(View v) {
                 final BookingInfomation bookingInfomation = new BookingInfomation();
                 final String barberId = Common.currentBarber.getId();
-                String barberName = Common.currentBarber.getName();
-                String customerName = Common.currentUser.getFullName();
-                String customerPhone = Common.currentUser.getPhoneNumber().trim();
-                String salonId = Common.currentSalon.getSalonId();
-                String salonAddress = Common.currentSalon.getAdress();
-                String salonName = Common.currentSalon.getName();
+                final String barberName = Common.currentBarber.getName();
+                final String customerName = Common.currentUser.getFullName();
+                final String customerPhone = Common.currentUser.getPhoneNumber().trim();
+                final String salonId = Common.currentSalon.getSalonId();
+                final String salonAddress = Common.currentSalon.getAdress();
+                final String salonName = Common.currentSalon.getName();
                 final String date = simpleDateFormat.format(Common.bookingDate.getTime());
                 final String slot = String.valueOf(Common.currentTimeSlot);
 
@@ -123,44 +137,84 @@ public class BookingStep4Fragment extends Fragment {
                 bookingInfomation.setSalonAddress(salonAddress);
                 bookingInfomation.setSalonName(salonName);
                 bookingInfomation.setDone(false);
-                bookingInfomation.setTime(new StringBuilder(slot)
+                bookingInfomation.setTime(new StringBuilder(Common.convertTimeSlotToString(Integer.parseInt(slot)))
                         .append(" at ")
                         .append(simpleDateFormat.format(Common.bookingDate.getTime())).toString());
                 bookingInfomation.setSlot(String.valueOf(Common.currentTimeSlot));
                 MyNotification myNotification = new MyNotification();
                 myNotification.setIdBarber(barberId);
                 myNotification.setTitle("New Booking");
-                myNotification.setContent("You have a new appoiment from phone "+ Common.currentUser.getPhoneNumber());
+                myNotification.setContent("You have a new appoiment from phone number " + Common.currentUser.getPhoneNumber());
                 myNotification.setRead(false);
-                String notification = new Gson().toJson(myNotification);
-                mSocket.emit("addBooking", barberId, barberName, customerName, customerPhone, salonId, salonAddress, salonName, slot, false, date, notification);
+                final String notification = new Gson().toJson(myNotification);
+
+
+                if (Common.currentToken != null) {
+                    FCMSendData sendRequest = new FCMSendData();
+                    Map<String, String> dataSend = new HashMap<>();
+                    dataSend.put(Common.TITLE_KEY, "New Booking");
+                    dataSend.put(Common.CONTENT_KEY, "You have new booking from user" + Common.currentUser.getFullName());
+                    sendRequest.setTo(Common.currentToken.getToken());
+                    Log.d("token", "onClick: " + Common.currentToken.getToken());
+                    sendRequest.setData(dataSend);
+                    ifcmService.sendNotification(sendRequest).subscribeOn(Schedulers.io()).observeOn(Schedulers.newThread()).subscribe(new Consumer<FCMResponse>() {
+                        @Override
+                        public void accept(FCMResponse fcmResponse) throws Exception {
+                            mSocket.emit("addBooking", barberId, barberName, customerName, customerPhone, salonId, salonAddress, salonName, slot, false, date, notification);
+
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            Log.d("NOTIFICATION_ERROR", "notification_error: " + throwable.getMessage());
+                        }
+                    });
+                }
                 mSocket.on("addBooking", new Emitter.Listener() {
                     @Override
                     public void call(final Object... args) {
                         final JSONObject object = (JSONObject) args[0];
-                            getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
                                 if(object!=null){
                                     Common.bookingInfomation = bookingInfomation;
-//                                    addToCalendar(Common.bookingDate,Common.convertTimeSlotToString(Common.currentTimeSlot));
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                addToCalendar(Common.bookingDate, Common.convertTimeSlotToString(Integer.parseInt(object.getString("slot"))));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+
+                                    Log.d("Booking", "bookingInfomation: ");
                                     resetData();// fix bug to continue booking (reset Common.step)
-                                    Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
-                                    getActivity().finish();
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getActivity(), "Thành Công", Toast.LENGTH_SHORT).show();
+                                            getActivity().finish();
+                                        }
+                                    });
                                 } else {
-                                    Toast.makeText(getContext(), "Sorry, 1 phonenumber/1 slot per day", Toast.LENGTH_SHORT).show();
-                                    getActivity().finish();
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getActivity(), "Lỗi", Toast.LENGTH_SHORT).show();
+                                            getActivity().finish();
+                                        }
+                                    });
                                 }
-                            }
-                        });
+
                     }
                 });
+
             }
         });
     }
 
     private void addToCalendar(Calendar bookingDate, String startDate) {
-        String[] convertTime = startDate.split("-"); //split 9:00 - 9:30 to 2 object timestart, timeend
+        String[] convertTime = startDate.split("-");
         String[] startTimeCovert = convertTime[0].split(":");
         int startHourInt = Integer.parseInt(startTimeCovert[0].trim());
         int startMinInt = Integer.parseInt(startTimeCovert[1].trim());
@@ -180,7 +234,7 @@ public class BookingStep4Fragment extends Fragment {
         endEvent.set(Calendar.HOUR_OF_DAY, endHourInt);
         endEvent.set(Calendar.MINUTE, endMinInt);
 
-        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd_MM_yyyy HH:mm");
         String startEventTime = calendarDateFormat.format(startEvent.getTime());
         String endEventTime = calendarDateFormat.format(endEvent.getTime());
 
@@ -195,7 +249,7 @@ public class BookingStep4Fragment extends Fragment {
     }
 
     private void addToDeviceCalendar(String startEventTime, String endEventTime, String title, String description, String location) {
-        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        SimpleDateFormat calendarDateFormat = new SimpleDateFormat("dd_MM_yyyy HH:mm");
 
         try {
             Date start = calendarDateFormat.parse(startEventTime);
@@ -219,7 +273,7 @@ public class BookingStep4Fragment extends Fragment {
 
             Uri calendars;
             if (Build.VERSION.SDK_INT >= 8) {
-                calendars = Uri.parse("content://com.android.calendar/calendars");
+                calendars = Uri.parse("content://com.android.calendar/events");
             } else {
                 calendars = Uri.parse("content://calendar/events");
             }

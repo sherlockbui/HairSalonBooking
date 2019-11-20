@@ -1,7 +1,9 @@
 package com.example.hairsalonbooking.Common;
 
+
 import com.example.hairsalonbooking.Model.Barber;
 import com.example.hairsalonbooking.Model.BookingInfomation;
+import com.example.hairsalonbooking.Model.MyToken;
 import com.example.hairsalonbooking.Model.Salon;
 import com.example.hairsalonbooking.Model.User;
 
@@ -20,6 +22,8 @@ public class Common {
     public static final Object DISABLE_TAG = "DISABLE_TAG" ;
     public static final String KEY_TIME_SLOT = "TIME_SLOT";
     public static final String KEY_CONFIRM_BOOKING ="CONFIRM_BOOKING" ;
+    public static final String TITLE_KEY = "TITLE_KEY";
+    public static final String CONTENT_KEY = "CONTENT_KEY";
     public static User currentUser;
     public static Salon currentSalon;
     public static int step = 0;
@@ -27,6 +31,7 @@ public class Common {
     public static int currentTimeSlot = -1;
     public static Calendar bookingDate = Calendar.getInstance();
     public static BookingInfomation bookingInfomation;
+    public static MyToken currentToken;
 
     public static String convertTimeSlotToString(int slot) {
         switch (slot) {
@@ -79,4 +84,5 @@ public class Common {
         return name.length()>13? new StringBuilder(name.substring(0, 10)).append("...").toString():name;
 
     }
+
 }
