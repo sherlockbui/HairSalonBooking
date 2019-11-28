@@ -146,7 +146,7 @@ public class BookingActivity extends AppCompatActivity {
                                     object.getString("_id"),
                                     object.getString("name"),
                                     object.getString("username"),
-                                    object.getLong("rating")));
+                                    object.getDouble("rating")));
                             intent.putParcelableArrayListExtra(Common.KEY_BARBER_LOAD_DONE,barberArrayList);
                             localBroadcastManager.sendBroadcast(intent);
                         } catch (JSONException e) {

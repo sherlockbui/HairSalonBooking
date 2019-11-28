@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +24,8 @@ import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Common.MySocket;
 import com.example.hairsalonbooking.Common.SpaceItemDecoration;
 import com.example.hairsalonbooking.Interface.ITimeSlotLoadListener;
+import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.Model.MyToken;
-import com.example.hairsalonbooking.Model.TimeSlot;
 import com.example.hairsalonbooking.R;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -49,7 +51,7 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
     RecyclerView recycler_time_slot;
     HorizontalCalendarView calendarView;
     SimpleDateFormat simpleDateFormat;
-    List<TimeSlot> timeSlotList;
+    List<BookingInfomation> timeSlotList;
 
 
     BroadcastReceiver dislayTimeSlot = new BroadcastReceiver() {
@@ -67,7 +69,7 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
                     if (object != null) {
                         MyToken token = new MyToken();
                         try {
-                            token.setIdbarber(object.getString("idbarber"));
+                            token.setIdBarber(object.getString("idbarber"));
                             token.setToken(object.getString("token"));
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -158,30 +160,44 @@ public class BookingStep3Fragment extends Fragment implements ITimeSlotLoadListe
 
     }
     @Override
-    public void onTimeSlotLoadSuccess(final List<TimeSlot> timeSlotList) {
+    public void onTimeSlotLoadSuccess(final List<BookingInfomation> timeSlotList) {
         final MyTimeSlotAdapter adapter = new MyTimeSlotAdapter(getContext(), timeSlotList);
         recycler_time_slot.setAdapter(adapter);
         Emitter.Listener getTimeBooking = new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                getActivity().runOnUiThread(new Runnable() {
+                Handler mHandler = new Handler(Looper.getMainLooper());
                     JSONObject object = (JSONObject) args[0];
-
-                    @Override
-                    public void run() {
                         try {
                             if (object == null) {
                                 iTimeSlotLoadListener.onTimeSlotLoadEmpty();
                             } else {
-                                timeSlotList.add(new TimeSlot(object.getString("slot")));
-                                adapter.notifyDataSetChanged();
-                                Log.d("AAA", "run: " + object.getString("slot"));
+                                BookingInfomation bookingInfomation = new BookingInfomation();
+                                bookingInfomation.set_id(object.getString("_id"));
+                                bookingInfomation.setCustomerName(object.getString("customerName"));
+                                bookingInfomation.setCustomerPhone(object.getString("customerPhone"));
+                                bookingInfomation.setDate(object.getString("date"));
+                                bookingInfomation.setBarberId(object.getString("barberId"));
+                                bookingInfomation.setBarberName(object.getString("barberName"));
+                                bookingInfomation.setSalonId(object.getString("salonId"));
+                                bookingInfomation.setSalonName(object.getString("salonName"));
+                                bookingInfomation.setSalonAddress(object.getString("salonAddress"));
+                                bookingInfomation.setSlot(object.getInt("slot"));
+                                bookingInfomation.setDone(object.getBoolean("done"));
+                                timeSlotList.add(bookingInfomation);
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                });
+
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
-                });
+
+
             }
         };
         mSocket.on("getTimeBooking", getTimeBooking);

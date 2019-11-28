@@ -1,14 +1,27 @@
 package com.example.hairsalonbooking.Model;
 
 
+import com.example.hairsalonbooking.Database.CartItem;
+
+import java.util.List;
+
 public class BookingInfomation {
-    private String _id, date, customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress, slot;
+    private String _id, date, customerName, customerPhone, time, barberId, barberName, salonId, salonName, salonAddress;
+    private int slot;
     private boolean done;
+    private List<CartItem> cartItemList;
 
     public BookingInfomation() {
     }
 
 
+    public int getSlot() {
+        return slot;
+    }
+
+    public void setSlot(int slot) {
+        this.slot = slot;
+    }
 
     public boolean isDone() {
         return done;
@@ -98,12 +111,11 @@ public class BookingInfomation {
         this.salonAddress = salonAddress;
     }
 
-    public String getSlot() {
-        return slot;
+    public List<CartItem> getCartItemList() {
+        return cartItemList;
     }
 
-    public void setSlot(String slot) {
-        this.slot = slot;
+    public void setCartItemList(List<CartItem> cartItemList) {
+        this.cartItemList = cartItemList;
     }
-
 }

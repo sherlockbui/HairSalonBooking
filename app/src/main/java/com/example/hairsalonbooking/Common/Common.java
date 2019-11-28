@@ -1,11 +1,22 @@
 package com.example.hairsalonbooking.Common;
 
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+
+import androidx.core.app.NotificationCompat;
+
 import com.example.hairsalonbooking.Model.Barber;
 import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.Model.MyToken;
 import com.example.hairsalonbooking.Model.Salon;
 import com.example.hairsalonbooking.Model.User;
+import com.example.hairsalonbooking.R;
 
 import java.util.Calendar;
 
@@ -24,6 +35,7 @@ public class Common {
     public static final String KEY_CONFIRM_BOOKING ="CONFIRM_BOOKING" ;
     public static final String TITLE_KEY = "TITLE_KEY";
     public static final String CONTENT_KEY = "CONTENT_KEY";
+    public static final String ID_BARBER_KEY = "ID_BARBER_KEY";
     public static User currentUser;
     public static Salon currentSalon;
     public static int step = 0;
@@ -85,4 +97,30 @@ public class Common {
 
     }
 
+    public static void showNotification(Context context, int notification_id, String title, String content, Intent intent) {
+
+        PendingIntent pendingIntent = null;
+        if (intent != null)
+            pendingIntent = PendingIntent.getActivity(context, notification_id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        String NOTIFICATION_CHANEL_ID = "barberbooking_chanel_01";
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANEL_ID,
+                    "BARBER_BOOKING_APP",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.setDescription("Staff app");
+            notificationChannel.enableLights(true);
+            notificationChannel.enableVibration(true);
+
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANEL_ID);
+        builder.setContentTitle(title).setContentText(content).setAutoCancel(false).setSmallIcon(R.drawable.ic_launcher_background);
+        if (pendingIntent != null)
+            builder.setContentIntent(pendingIntent);
+        Notification notification = builder.build();
+        notificationManager.notify(notification_id, notification);
+    }
 }

@@ -13,7 +13,7 @@ public class MySocket {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        return mSocket.connect();
+        return mSocket;
     }
 }
 

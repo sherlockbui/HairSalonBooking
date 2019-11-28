@@ -3,6 +3,8 @@ package com.example.hairsalonbooking.Database;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
+
 import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Interface.ICartItemLoadListener;
 import com.example.hairsalonbooking.Interface.ICountItemCartListener;
@@ -10,6 +12,7 @@ import com.example.hairsalonbooking.Interface.ISumCartListener;
 
 import java.util.List;
 public class DatabaseUtils {
+
     public static void sumCart(CartDatabase db, ISumCartListener iSumCartListener){
         SumCartAsync task = new SumCartAsync(db, iSumCartListener);
         task.execute();
@@ -39,7 +42,15 @@ public class DatabaseUtils {
         task.execute();
     }
 
+    public static void deleteCart(@NonNull final CartDatabase db, CartItem cartItem) {
+        DeleteCartAsync task = new DeleteCartAsync(db);
+        task.execute(cartItem);
+    }
 
+    public static void clearCart(CartDatabase db) {
+        ClearCartAsync task = new ClearCartAsync(db);
+        task.execute();
+    }
 
 
     private static class UpdateCartAsync extends AsyncTask<CartItem, Void, Void> {
@@ -151,6 +162,38 @@ public class DatabaseUtils {
 
         private int countItemInCartRun(CartDatabase db) {
             return db.cartDAO().countItemInCart(Common.currentUser.getPhoneNumber());
+        }
+    }
+
+    private static class DeleteCartAsync extends AsyncTask<CartItem, Void, Void> {
+        private final CartDatabase db;
+
+        public DeleteCartAsync(CartDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected Void doInBackground(CartItem... cartItems) {
+            db.cartDAO().delete(cartItems[0]);
+            return null;
+        }
+    }
+
+    private static class ClearCartAsync extends AsyncTask<Void, Void, Void> {
+        private final CartDatabase db;
+
+        private ClearCartAsync(CartDatabase db) {
+            this.db = db;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            clearAllItemFromCart(db);
+            return null;
+        }
+
+        private void clearAllItemFromCart(CartDatabase db) {
+            db.cartDAO().clearCart(Common.currentUser.getPhoneNumber());
         }
     }
 }

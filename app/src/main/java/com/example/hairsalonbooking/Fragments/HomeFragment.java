@@ -27,12 +27,12 @@ import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Common.MySocket;
 import com.example.hairsalonbooking.Database.CartDatabase;
 import com.example.hairsalonbooking.Database.DatabaseUtils;
+import com.example.hairsalonbooking.HistoryActivity;
 import com.example.hairsalonbooking.Interface.IBannerLoadListener;
 import com.example.hairsalonbooking.Interface.ICountItemCartListener;
 import com.example.hairsalonbooking.Interface.ILookBookLoadListener;
 import com.example.hairsalonbooking.Model.Banner;
 import com.example.hairsalonbooking.Model.BookingInfomation;
-import com.example.hairsalonbooking.Model.User;
 import com.example.hairsalonbooking.R;
 import com.example.hairsalonbooking.Service.PicassoService;
 import com.github.nkzawa.emitter.Emitter;
@@ -58,7 +58,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     ILookBookLoadListener iLookBookLoadListener;
     List<Banner> banners;
     List<Banner> bannerslookbook;
-    CardView card_view_booking, card_view_cart, card_booking_info;
+    CardView card_view_booking, card_view_cart, card_booking_info, card_view_notification, card_view_history;
     NotificationBadge notificationBadge;
     CartDatabase cartDatabase;
     private Socket mSocket= MySocket.getmSocket();
@@ -66,11 +66,12 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     private Emitter.Listener getBookInfomation = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
+
             JSONObject object = (JSONObject) args[0];
             if (object != null) {
-                if (Common.bookingInfomation == null) {
-                    Common.bookingInfomation = new BookingInfomation();
+                Common.bookingInfomation = new BookingInfomation();
                     try {
+
                         Common.bookingInfomation.set_id(object.getString("_id"));
                         Common.bookingInfomation.setCustomerName(object.getString("customerName"));
                         Common.bookingInfomation.setCustomerPhone(object.getString("customerPhone"));
@@ -80,15 +81,40 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
                         Common.bookingInfomation.setSalonId(object.getString("salonId"));
                         Common.bookingInfomation.setSalonName(object.getString("salonName"));
                         Common.bookingInfomation.setSalonAddress(object.getString("salonAddress"));
-                        Common.bookingInfomation.setSlot(object.getString("slot"));
+                        Common.bookingInfomation.setSlot(object.getInt("slot"));
                         Common.bookingInfomation.setDone(object.getBoolean("done"));
                         Common.bookingInfomation.setTime(new StringBuilder(Common.convertTimeSlotToString(Integer.parseInt(object.getString("slot"))))
                                 .append(" at ")
                                 .append(object.getString("date")).toString());
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (Common.bookingInfomation == null) {
+                                    card_booking_info.setVisibility(View.GONE);
+                                } else {
+                                    card_booking_info.setVisibility(View.VISIBLE);
+                                    txt_salon_address.setText(Common.bookingInfomation.getSalonAddress());
+                                    txt_salon_barber.setText(Common.bookingInfomation.getBarberName());
+                                    txt_time.setText(Common.bookingInfomation.getTime());
+                                    Log.d("TEST", "curent: " + Calendar.getInstance().getTimeInMillis());
+                                }
+                            }
+                        });
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                }
+
+
+            } else {
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        card_booking_info.setVisibility(View.GONE);
+                    }
+                });
+
             }
 
         }
@@ -155,19 +181,17 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        mSocket.connect();
         mSocket.on("getLookBook", getLookBook);
         mSocket.on("getBanners", getBanners);
         mSocket.on("getBookInfomation", getBookInfomation);
-        mSocket.connect();
         mSocket.emit("getBanners", "");
         mSocket.emit("getLookBook", "");
         initView(view);
         initControl();
-        User currentUser = Common.currentUser;
-        if (currentUser != null) {
+        if (Common.currentUser != null) {
             setUserInfomation();
             countCartItem();
-
         }
 
         return view;
@@ -191,6 +215,12 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
                 startActivity(new Intent(getActivity(), CartActivity.class));
             }
         });
+        card_view_history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), HistoryActivity.class));
+            }
+        });
     }
 
     private void loadLookBook() {
@@ -203,9 +233,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
 
 
     }
-
     private void initView(View view) {
-
         cartDatabase = CartDatabase.getInstance(getContext());
         banners = new ArrayList<>();
         bannerslookbook = new ArrayList<>();
@@ -214,6 +242,8 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         banner_slider = view.findViewById(R.id.banner_slider);
         recycler_look_book = view.findViewById(R.id.recycler_look_book);
         card_view_booking = view.findViewById(R.id.card_view_booking);
+        card_view_notification = view.findViewById(R.id.card_view_notification);
+        card_view_history = view.findViewById(R.id.card_view_history);
         card_view_cart = view.findViewById(R.id.card_view_cart);
         Slider.init(new PicassoService());
         notificationBadge = view.findViewById(R.id.notification_badge);
@@ -223,7 +253,6 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         txt_salon_barber = view.findViewById(R.id.txt_salon_baber);
         txt_time = view.findViewById(R.id.txt_time);
         txt_time_remain = view.findViewById(R.id.txt_time_remain);
-        loadUserBooking();
     }
 
     private void setUserInfomation() {
@@ -264,21 +293,19 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
 
     @Override
     public void onResume() {
-//        countCartItem();
+        countCartItem();
         loadUserBooking();
         super.onResume();
     }
 
-    private void loadUserBooking() {
-        mSocket.emit("getBookInfomation");
-        if (Common.bookingInfomation == null) {
-            card_booking_info.setVisibility(View.GONE);
-        } else {
-            card_booking_info.setVisibility(View.VISIBLE);
-            txt_salon_address.setText(Common.bookingInfomation.getSalonAddress());
-            txt_salon_barber.setText(Common.bookingInfomation.getBarberName());
-            txt_time.setText(Common.bookingInfomation.getTime());
-            Log.d("TEST", "curent: " + Calendar.getInstance().getTimeInMillis());
-        }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
+
+    private void loadUserBooking() {
+        mSocket.emit("getBookInfomation", null, Common.currentUser.getPhoneNumber());
+    }
+
+
 }

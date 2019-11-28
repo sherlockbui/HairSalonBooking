@@ -5,12 +5,12 @@ import android.os.Parcelable;
 
 public class Barber implements Parcelable {
     private String id, name, username;
-    private long rating;
+    private double rating;
 
     public Barber() {
     }
 
-    public Barber(String id, String name, String username, long rating) {
+    public Barber(String id, String name, String username, double rating) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -60,11 +60,11 @@ public class Barber implements Parcelable {
         this.username = username;
     }
 
-    public long getRating() {
+    public double getRating() {
         return rating;
     }
 
-    public void setRating(long rating) {
+    public void setRating(double rating) {
         this.rating = rating;
     }
 
@@ -78,6 +78,6 @@ public class Barber implements Parcelable {
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(username);
-        dest.writeLong(rating);
+        dest.writeDouble(rating);
     }
 }

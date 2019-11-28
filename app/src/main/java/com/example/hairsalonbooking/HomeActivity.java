@@ -1,11 +1,12 @@
 package com.example.hairsalonbooking;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,134 +16,160 @@ import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Common.MySocket;
 import com.example.hairsalonbooking.Fragments.HomeFragment;
 import com.example.hairsalonbooking.Fragments.ShopingFragment;
+import com.example.hairsalonbooking.Model.MyToken;
 import com.example.hairsalonbooking.Model.User;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class HomeActivity extends AppCompatActivity {
-
     BottomNavigationView bottomNavigationView;
     BottomSheetDialog bottomSheetDialog;
-    User user = null;
+    FirebaseUser firebaseUser;
     private Socket mSocket = MySocket.getmSocket();
-    private Emitter.Listener onRegister = new Emitter.Listener() {
+    private Emitter.Listener onCheckEmail = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            String result = args[0].toString();
-            if (result.equalsIgnoreCase("Exits")) {
-                toast("Tồn tại");
-                runOnUiThread(new Runnable() {
+            Handler handler = new Handler(Looper.getMainLooper());
+            JSONObject object = (JSONObject) args[0];
+            if (object != null) {
+                try {
+                    Common.currentUser = new User();
+                    Common.currentUser.setEmail(object.getString("email"));
+                    Common.currentUser.setFullName(object.getString("name"));
+                    Common.currentUser.setAddress(object.getString("adress"));
+                    Common.currentUser.setPhoneNumber(object.getString("phone"));
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Common.currentUser != null) {
+                                Log.d("AAA", "run: " + Common.currentUser.getFullName());
+                                initControl();
+                            }
+                        }
+                    });
+                    FirebaseInstanceId.getInstance().getInstanceId()
+                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                @Override
+                                public void onComplete(Task<InstanceIdResult> task) {
+                                    if (!task.isSuccessful()) {
+                                        return;
+                                    } else {
+                                        String token = task.getResult().getToken();
+                                        MyToken myToken = new MyToken();
+                                        myToken.setToken(token);
+                                        myToken.setPhoneCustomer(Common.currentUser.getPhoneNumber());
+                                        String jsonToken = new Gson().toJson(myToken);
+                                        mSocket.emit("updateToken", jsonToken);
+                                        Log.d("token", "onComplete: " + token);
+                                    }
+                                }
+                            });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            } else {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        bottomSheetDialog.hide();
+                        showUpdateDialog();
                     }
                 });
 
-            } else if (result.equalsIgnoreCase("Success")) {
-                toast("Thank you");
-                Common.currentUser = user;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bottomSheetDialog.hide();
-                    }
-                });
-            } else {
-                toast("Lỗi");
+            }
+
+        }
+    };
+    private Emitter.Listener onRegister = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            JSONObject object = (JSONObject) args[0];
+            if (object != null) {
+                try {
+                    Common.currentUser = new User(
+                            object.getString("email"),
+                            object.getString("name"),
+                            object.getString("phone"),
+                            object.getString("adress"));
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Common.currentUser != null) {
+                                bottomSheetDialog.dismiss();
+                                initControl();
+                            }
+
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
-
-
-    private void toast(final String ss) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), ss, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        mSocket.on("register", onRegister);
         mSocket.connect();
+        mSocket.on("register", onRegister);
+        mSocket.on("checkemail", onCheckEmail);
         checkLogin();
         initView();
-        initControl();
     }
 
 
     private void checkLogin() {
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (getIntent() != null) {
             boolean isLogin = getIntent().getBooleanExtra(Common.IS_LOGIN, false);
             if (isLogin) {
-                final String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-                mSocket.emit("checkemail", email);
-                mSocket.on("checkemail", new Emitter.Listener() {
-                    @Override
-                    public void call(final Object... args) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                JSONObject object = (JSONObject) args[0];
-                                if (object != null) {
-                                    try {
-                                        user = new User(
-                                                object.getString("email"),
-                                                object.getString("name"),
-                                                object.getString("phone"),
-                                                object.getString("adress"));
-                                        Common.currentUser = user;
-                                        bottomNavigationView.setSelectedItemId(R.id.action_home);
-                                        Log.d("AAA", "call: " + user);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    showUpdateDialog(email);
-                                }
-                            }
-                        });
-
-                        }
-                });
+                if (firebaseUser.getPhoneNumber() != null) {
+                    mSocket.emit("checkemail", firebaseUser.getEmail(), "0" + firebaseUser.getPhoneNumber().substring(3));
+                } else {
+                    mSocket.emit("checkemail", firebaseUser.getEmail(), "");
+                }
             }
         }
     }
 
+
     private void initControl() {
-            bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-                Fragment fragment = null;
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    if (item.getItemId() == R.id.action_home) {
-                        fragment = new HomeFragment();
-                    } else if (item.getItemId() == R.id.action_shoping) {
-                        fragment = new ShopingFragment();
-                    }
-                    return loadFragment(fragment);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            Fragment fragment = null;
+
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.action_home) {
+                    fragment = new HomeFragment();
+                } else if (item.getItemId() == R.id.action_shoping) {
+                    fragment = new ShopingFragment();
                 }
-            });
-
-            bottomNavigationView.setSelectedItemId(R.id.action_home);
-
-
-
+                return loadFragment(fragment);
+            }
+        });
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
     private boolean loadFragment(Fragment fragment) {
         if (fragment != null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(fragment.getClass().getSimpleName()).commit();
             return true;
         }
         return false;
@@ -152,9 +179,9 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
     }
 
-    private void showUpdateDialog(final String email) {
+    private void showUpdateDialog() {
         bottomSheetDialog = new BottomSheetDialog(this);
-        bottomSheetDialog.setTitle("One more step!");
+        bottomSheetDialog.setTitle("Vui Lòng Cung Cấp Thêm Thông Tin!");
         bottomSheetDialog.setCanceledOnTouchOutside(false);
         bottomSheetDialog.setCancelable(false);
         View sheetView = getLayoutInflater().inflate(R.layout.layout_update_infomation, null);
@@ -162,12 +189,20 @@ public class HomeActivity extends AppCompatActivity {
         final TextInputEditText edt_name = sheetView.findViewById(R.id.edt_name);
         final TextInputEditText edt_phoneNumber = sheetView.findViewById(R.id.edt_phoneNumber);
         final TextInputEditText edt_adress = sheetView.findViewById(R.id.edt_adress);
+        final TextInputEditText edt_email = sheetView.findViewById(R.id.edt_email);
+        if (firebaseUser.getEmail() != null) {
+            edt_email.setText(firebaseUser.getEmail());
+            edt_email.setEnabled(false);
+        }
+        if (firebaseUser.getPhoneNumber() != null) {
+            edt_phoneNumber.setText("0" + firebaseUser.getPhoneNumber().substring(3));
+            edt_phoneNumber.setEnabled(false);
+        }
         btn_update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(HomeActivity.this, "Click", Toast.LENGTH_SHORT).show();
-                user = new User(
-                        email,
+                User user = new User(
+                        edt_email.getText().toString(),
                         edt_name.getText().toString(),
                         edt_phoneNumber.getText().toString(),
                         edt_adress.getText().toString());
@@ -181,10 +216,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-
     //CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN CHECK LAI LOGIN
-
-
 
 
 }

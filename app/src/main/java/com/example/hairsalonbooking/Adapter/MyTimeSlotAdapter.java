@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hairsalonbooking.Common.Common;
 import com.example.hairsalonbooking.Interface.IRecyclerItemSelectedListener;
-import com.example.hairsalonbooking.Model.TimeSlot;
+import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.R;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.MyViewHolder> {
     Context context;
-    List<TimeSlot> timeSlotList;
+    List<BookingInfomation> timeSlotList;
     List<CardView> cardViewList;
     LocalBroadcastManager localBroadcastManager;
 
@@ -34,7 +34,7 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
         cardViewList = new ArrayList<>();
     }
 
-    public MyTimeSlotAdapter(Context context, List<TimeSlot> timeSlotList) {
+    public MyTimeSlotAdapter(Context context, List<BookingInfomation> timeSlotList) {
         this.context = context;
         this.timeSlotList = timeSlotList;
         this.localBroadcastManager = LocalBroadcastManager.getInstance(context);
@@ -56,19 +56,26 @@ public class MyTimeSlotAdapter extends RecyclerView.Adapter<MyTimeSlotAdapter.My
             holder.txt_time_slot_description.setText("Available");
             holder.txt_time_slot_description.setTextColor(context.getResources().getColor(android.R.color.black));
             holder.txt_time_slot.setTextColor(context.getResources().getColor(android.R.color.black));
-
         }else {
-            for(TimeSlot slotValue: timeSlotList){
-               int slot = Integer.parseInt(slotValue.getSlot());
-               if(slot== position){
-                   holder.card_time_slot.setTag(Common.DISABLE_TAG);
-                   holder.card_time_slot.setClickable(false);
-                   holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
-                   holder.txt_time_slot_description.setText("Full");
-                   holder.txt_time_slot_description.setTextColor(context.getResources().getColor(android.R.color.white));
-                   holder.txt_time_slot.setTextColor(context.getResources().getColor(android.R.color.white));
-
-               }
+            for (int i = 0; i < timeSlotList.size(); i++) {
+                final int slot = timeSlotList.get(i).getSlot();
+                if (slot == position) {
+                    if (!timeSlotList.get(i).isDone()) {
+                        holder.card_time_slot.setTag(Common.DISABLE_TAG);
+                        holder.card_time_slot.setClickable(false);
+                        holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
+                        holder.txt_time_slot_description.setText("Full");
+                        holder.txt_time_slot_description.setTextColor(context.getResources().getColor(android.R.color.white));
+                        holder.txt_time_slot.setTextColor(context.getResources().getColor(android.R.color.white));
+                    } else {
+                        holder.card_time_slot.setTag(Common.DISABLE_TAG);
+                        holder.card_time_slot.setCardBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_dark));
+                        holder.txt_time_slot_description.setText("Done");
+                        holder.txt_time_slot_description.setTextColor(context.getResources().getColor(android.R.color.white));
+                        holder.txt_time_slot.setTextColor(context.getResources().getColor(android.R.color.white));
+                        holder.card_time_slot.setClickable(false);
+                    }
+                }
             }
         }
         if(!cardViewList.contains(holder.card_time_slot)){
