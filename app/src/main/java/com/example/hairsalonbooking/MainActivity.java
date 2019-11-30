@@ -38,7 +38,15 @@ public class MainActivity extends AppCompatActivity {
         Dexter.withActivity(this).withPermissions(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR).withListener(new MultiplePermissionsListener() {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
-                createSignInIntent();
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    intent.putExtra(Common.IS_LOGIN, true);
+                    startActivity(intent);
+                } else {
+                    createSignInIntent();
+                }
+
             }
 
             @Override
@@ -71,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {

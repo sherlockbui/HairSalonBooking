@@ -37,7 +37,7 @@ import org.json.JSONObject;
 public class HomeActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     BottomSheetDialog bottomSheetDialog;
-    FirebaseUser firebaseUser;
+    FirebaseUser firebaseUser = null;
     private Socket mSocket = MySocket.getmSocket();
     private Emitter.Listener onCheckEmail = new Emitter.Listener() {
         @Override
@@ -97,15 +97,15 @@ public class HomeActivity extends AppCompatActivity {
     private Emitter.Listener onRegister = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+            Handler handler = new Handler(Looper.getMainLooper());
             JSONObject object = (JSONObject) args[0];
             if (object != null) {
                 try {
-                    Common.currentUser = new User(
-                            object.getString("email"),
-                            object.getString("name"),
-                            object.getString("phone"),
-                            object.getString("adress"));
-                    Handler handler = new Handler(Looper.getMainLooper());
+                    Common.currentUser = new User();
+                    Common.currentUser.setEmail(object.getString("email"));
+                    Common.currentUser.setFullName(object.getString("name"));
+                    Common.currentUser.setAddress(object.getString("adress"));
+                    Common.currentUser.setPhoneNumber(object.getString("phone"));
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -140,7 +140,8 @@ public class HomeActivity extends AppCompatActivity {
         if (getIntent() != null) {
             boolean isLogin = getIntent().getBooleanExtra(Common.IS_LOGIN, false);
             if (isLogin) {
-                if (firebaseUser.getPhoneNumber() != null) {
+                if (firebaseUser.getPhoneNumber() != null && firebaseUser.getPhoneNumber() != "") {
+                    Log.d("AAA", "checkLogin: " + firebaseUser.getPhoneNumber());
                     mSocket.emit("checkemail", firebaseUser.getEmail(), "0" + firebaseUser.getPhoneNumber().substring(3));
                 } else {
                     mSocket.emit("checkemail", firebaseUser.getEmail(), "");
