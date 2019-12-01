@@ -47,6 +47,7 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadList
             @Override
             public void onClick(View v) {
                 clearCart();
+
             }
         });
 
@@ -62,6 +63,8 @@ public class CartActivity extends AppCompatActivity implements ICartItemLoadList
         DatabaseUtils.clearCart(cartDatabase);
         //update adapter
         DatabaseUtils.getAllCart(cartDatabase, this);
+        DatabaseUtils.sumCart(cartDatabase, this);
+
     }
 
     @Override

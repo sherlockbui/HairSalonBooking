@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,7 @@ public class HomeActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     BottomSheetDialog bottomSheetDialog;
     FirebaseUser firebaseUser = null;
+    private boolean isFirstBackPressed = false;
     private Socket mSocket = MySocket.getmSocket();
     private Emitter.Listener onCheckEmail = new Emitter.Listener() {
         @Override
@@ -111,6 +113,7 @@ public class HomeActivity extends AppCompatActivity {
                         public void run() {
                             if (Common.currentUser != null) {
                                 bottomSheetDialog.dismiss();
+                                Toast.makeText(HomeActivity.this, "Thành Công", Toast.LENGTH_SHORT).show();
                                 initControl();
                             }
 
@@ -134,6 +137,22 @@ public class HomeActivity extends AppCompatActivity {
         initView();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (isFirstBackPressed) {
+            super.onBackPressed();
+        } else {
+            isFirstBackPressed = true;
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    isFirstBackPressed = false;
+                }
+            }, 1500);
+        }
+
+    }
 
     private void checkLogin() {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -170,7 +189,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private boolean loadFragment(Fragment fragment) {
         if (fragment != null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(fragment.getClass().getSimpleName()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(fragment.getClass().getSimpleName()).commitAllowingStateLoss();
             return true;
         }
         return false;
@@ -195,7 +214,7 @@ public class HomeActivity extends AppCompatActivity {
             edt_email.setText(firebaseUser.getEmail());
             edt_email.setEnabled(false);
         }
-        if (firebaseUser.getPhoneNumber() != null) {
+        if (firebaseUser.getPhoneNumber() != "") {
             edt_phoneNumber.setText("0" + firebaseUser.getPhoneNumber().substring(3));
             edt_phoneNumber.setEnabled(false);
         }

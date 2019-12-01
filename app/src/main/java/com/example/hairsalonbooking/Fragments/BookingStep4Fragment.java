@@ -181,7 +181,7 @@ public class BookingStep4Fragment extends Fragment implements ICartItemLoadListe
             ContentValues event = new ContentValues();
 
             //Put
-            event.put(CalendarContract.Events.CALENDAR_ID, getCalendar(getContext()));
+            event.put(CalendarContract.Events.CALENDAR_ID, getCalendar(getContext()) != "" ? getCalendar(getContext()) : String.valueOf(0));
             event.put(CalendarContract.Events.TITLE, title);
             event.put(CalendarContract.Events.DESCRIPTION, description);
             event.put(CalendarContract.Events.EVENT_LOCATION, location);
@@ -228,9 +228,11 @@ public class BookingStep4Fragment extends Fragment implements ICartItemLoadListe
                 calName = managedCursor.getString(nameCol);
                 if (calName.contains("@gmail.com") || calName.contains("@fpt.edu.vn")) {
                     gmailIdCalendar = managedCursor.getString(idCol);
+                    Log.d("AAA", "getCalendar: " + gmailIdCalendar);
                     break;
                 } else {
-                    gmailIdCalendar = "0";
+                    gmailIdCalendar = "";
+                    Log.d("AAA", "getCalendar: " + gmailIdCalendar);
                 }
             } while (managedCursor.moveToNext());
             managedCursor.close();

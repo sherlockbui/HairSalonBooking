@@ -1,6 +1,7 @@
 package com.example.hairsalonbooking.Fragments;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,11 +10,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,12 +35,16 @@ import com.example.hairsalonbooking.HistoryActivity;
 import com.example.hairsalonbooking.Interface.IBannerLoadListener;
 import com.example.hairsalonbooking.Interface.ICountItemCartListener;
 import com.example.hairsalonbooking.Interface.ILookBookLoadListener;
+import com.example.hairsalonbooking.MainActivity;
 import com.example.hairsalonbooking.Model.Banner;
 import com.example.hairsalonbooking.Model.BookingInfomation;
 import com.example.hairsalonbooking.R;
 import com.example.hairsalonbooking.Service.PicassoService;
+import com.firebase.ui.auth.AuthUI;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.nex3z.notificationbadge.NotificationBadge;
 
 import org.json.JSONException;
@@ -53,14 +61,16 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
     LinearLayout layout_user_infomation;
     Slider banner_slider;
     RecyclerView recycler_look_book;
-    TextView txt_user_name, txt_salon_address, txt_salon_barber, txt_time, txt_time_remain;
+    TextView txt_user_name, txt_salon_address, txt_salon_barber, txt_time;
     IBannerLoadListener iBannerLoadListener;
     ILookBookLoadListener iLookBookLoadListener;
     List<Banner> banners;
     List<Banner> bannerslookbook;
-    CardView card_view_booking, card_view_cart, card_booking_info, card_view_notification, card_view_history;
+    CardView card_view_booking, card_view_cart, card_booking_info, card_view_history;
     NotificationBadge notificationBadge;
     CartDatabase cartDatabase;
+    ImageView logOut;
+    AlertDialog.Builder builder;
     private Socket mSocket= MySocket.getmSocket();
 
     private Emitter.Listener getBookInfomation = new Emitter.Listener() {
@@ -177,6 +187,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
 
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -195,6 +206,12 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         }
 
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().finish();
     }
 
     private void countCartItem() {
@@ -221,6 +238,43 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
                 startActivity(new Intent(getActivity(), HistoryActivity.class));
             }
         });
+        layout_user_infomation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        logOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Bạn có muốn đăng xuất khỏi tài khoản ?")
+                        .setCancelable(false)
+                        .setPositiveButton("Có", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                AuthUI.getInstance()
+                                        .signOut(getContext())
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                startActivity(new Intent(getActivity(), MainActivity.class));
+                                            }
+                                        });
+
+                            }
+                        })
+                        .setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+
+                            }
+                        });
+                //Creating dialog box
+                AlertDialog alert = builder.create();
+                //Setting the title manually
+                alert.setTitle("Đăng xuất");
+                alert.show();
+            }
+        });
     }
 
     private void loadLookBook() {
@@ -234,6 +288,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
 
     }
     private void initView(View view) {
+        logOut = view.findViewById(R.id.btn_signout);
         cartDatabase = CartDatabase.getInstance(getContext());
         banners = new ArrayList<>();
         bannerslookbook = new ArrayList<>();
@@ -242,7 +297,6 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         banner_slider = view.findViewById(R.id.banner_slider);
         recycler_look_book = view.findViewById(R.id.recycler_look_book);
         card_view_booking = view.findViewById(R.id.card_view_booking);
-        card_view_notification = view.findViewById(R.id.card_view_notification);
         card_view_history = view.findViewById(R.id.card_view_history);
         card_view_cart = view.findViewById(R.id.card_view_cart);
         Slider.init(new PicassoService());
@@ -252,7 +306,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         txt_salon_address = view.findViewById(R.id.txt_salon_address);
         txt_salon_barber = view.findViewById(R.id.txt_salon_baber);
         txt_time = view.findViewById(R.id.txt_time);
-        txt_time_remain = view.findViewById(R.id.txt_time_remain);
+
     }
 
     private void setUserInfomation() {
@@ -296,11 +350,6 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         countCartItem();
         loadUserBooking();
         super.onResume();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     private void loadUserBooking() {
