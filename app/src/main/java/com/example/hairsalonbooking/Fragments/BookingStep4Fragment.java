@@ -285,8 +285,8 @@ public class BookingStep4Fragment extends Fragment implements ICartItemLoadListe
         bookingInfomation.setSlot(Common.currentTimeSlot);
         MyNotification myNotification = new MyNotification();
         myNotification.setIdBarber(barberId);
-        myNotification.setTitle("New Booking");
-        myNotification.setContent("You have a new appoiment from phone number " + Common.currentUser.getPhoneNumber());
+        myNotification.setTitle("Khách Hàng Đặt Lịch");
+        myNotification.setContent("Dịch vụ được đặt từ số điện thoại: " + Common.currentUser.getPhoneNumber());
         myNotification.setRead(false);
         final String notification = new Gson().toJson(myNotification);
         final String cartItemsToJson = new Gson().toJson(cartItemList);
@@ -294,8 +294,8 @@ public class BookingStep4Fragment extends Fragment implements ICartItemLoadListe
         if (Common.currentToken != null) {
             FCMSendData sendRequest = new FCMSendData();
             Map<String, String> dataSend = new HashMap<>();
-            dataSend.put(Common.TITLE_KEY, "New Booking");
-            dataSend.put(Common.CONTENT_KEY, "You have new booking from user" + Common.currentUser.getFullName());
+            dataSend.put(Common.TITLE_KEY, "Khách hàng mới");
+            dataSend.put(Common.CONTENT_KEY, "Bạn có khách hàng mới tên: " + Common.currentUser.getFullName());
             sendRequest.setTo(Common.currentToken.getToken());
             Log.d("token", "onClick: " + Common.currentToken.getToken());
             sendRequest.setData(dataSend);

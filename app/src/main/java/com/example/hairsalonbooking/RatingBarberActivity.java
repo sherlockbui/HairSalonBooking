@@ -41,6 +41,7 @@ public class RatingBarberActivity extends AppCompatActivity implements RatingDia
     @Override
     public void onPositiveButtonClicked(int i, String s) {
         mSocket.emit("Rating", i, s, idBarber);
+        finish();
     }
 
     private void showDialog() {
