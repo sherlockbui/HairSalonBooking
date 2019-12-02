@@ -210,7 +210,7 @@ public class HomeActivity extends AppCompatActivity {
         final TextInputEditText edt_phoneNumber = sheetView.findViewById(R.id.edt_phoneNumber);
         final TextInputEditText edt_adress = sheetView.findViewById(R.id.edt_adress);
         final TextInputEditText edt_email = sheetView.findViewById(R.id.edt_email);
-        if (firebaseUser.getEmail() != null) {
+        if (firebaseUser.getEmail() != "" && firebaseUser.getEmail() != null) {
             edt_email.setText(firebaseUser.getEmail());
             edt_email.setEnabled(false);
         }
