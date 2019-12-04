@@ -214,7 +214,7 @@ public class HomeActivity extends AppCompatActivity {
             edt_email.setText(firebaseUser.getEmail());
             edt_email.setEnabled(false);
         }
-        if (firebaseUser.getPhoneNumber() != "") {
+        if (firebaseUser.getPhoneNumber() != "" && firebaseUser.getPhoneNumber() != null) {
             edt_phoneNumber.setText("0" + firebaseUser.getPhoneNumber().substring(3));
             edt_phoneNumber.setEnabled(false);
         }

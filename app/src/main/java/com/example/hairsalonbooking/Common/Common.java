@@ -105,7 +105,6 @@ public class Common {
         String NOTIFICATION_CHANEL_ID = "barberbooking_chanel_01";
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANEL_ID,
                     "BARBER_BOOKING_APP",
                     NotificationManager.IMPORTANCE_DEFAULT);
@@ -119,7 +118,7 @@ public class Common {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANEL_ID);
         builder.setContentTitle(title).setContentText(content).setAutoCancel(false).setSmallIcon(R.drawable.ic_launcher_background);
         if (pendingIntent != null)
-            builder.setContentIntent(pendingIntent);
+            builder.setContentIntent(pendingIntent).setAutoCancel(true);
         Notification notification = builder.build();
         notificationManager.notify(notification_id, notification);
     }
