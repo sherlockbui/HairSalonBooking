@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hairsalonbooking.Adapter.HomeSliderAdapter;
 import com.example.hairsalonbooking.Adapter.LookbookAdapter;
+import com.example.hairsalonbooking.AllBookingInfomation;
 import com.example.hairsalonbooking.BookingActivity;
 import com.example.hairsalonbooking.CartActivity;
 import com.example.hairsalonbooking.Common.Common;
@@ -241,7 +242,7 @@ public class HomeFragment extends Fragment implements ILookBookLoadListener, IBa
         layout_user_infomation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(getContext(), AllBookingInfomation.class));
             }
         });
         logOut.setOnClickListener(new View.OnClickListener() {
